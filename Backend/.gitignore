@@ -1,0 +1,46 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.*
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+out/
+target/
+
+# Cache
+.cache/
+.tmp/
+temp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+
+# Coverage reports
+coverage/
+.coverage
+htmlcov/
+
+# Git
+*.orig
+
+# Package lock files (optional)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
