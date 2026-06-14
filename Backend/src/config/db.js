@@ -38,7 +38,7 @@ export const testConnection = async () => {
     console.log("✅ PostgreSQL connected successfully");
 
     // Sync models
-    await sequelize.sync();
+    await sequelize.sync(); // Use { force: true } for development to drop and recreate tables
     console.log("✅ Database synced successfully");
   } catch (error) {
     console.error("❌ Database error:", error.message);

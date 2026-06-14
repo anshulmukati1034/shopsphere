@@ -26,13 +26,13 @@ const User = sequelize.define(
 
     password: {
       type: DataTypes.STRING,
-      allowNull: true, 
+      allowNull: true,
     },
 
     isVerified: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
+      defaultValue: false,
     },
 
     isActive: {
@@ -46,12 +46,17 @@ const User = sequelize.define(
       allowNull: false,
       defaultValue: "user",
     },
+    
+    profileImage: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     tableName: "users",
     timestamps: true,
-    underscored: true, 
-  }
+    underscored: true,
+  },
 );
 
 export default User;
