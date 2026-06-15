@@ -26,3 +26,20 @@ export const changePasswordSchema = Joi.object({
   password: passwordField,
   confirmPassword: confirmPasswordField,
 });
+
+export const updateProfileSchema = Joi.object({
+  name: Joi.string()
+    .min(2)
+    .max(50)
+    .optional()
+    .messages({
+      "string.min": "Name must be at least 2 characters",
+      "string.max": "Name cannot exceed 50 characters",
+    }),
+  email: Joi.string()
+    .email()
+    .optional()
+    .messages({
+      "string.email": "Please provide a valid email address",
+    }),
+}).unknown(true); // Allow file field

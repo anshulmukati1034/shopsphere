@@ -1,11 +1,13 @@
 import * as userService from "./user.service.js";
+import { STATUS } from "../../utils/constants/status.js";
+import { ROLES } from "../../utils/constants/roles.js";
 
 export const getUserProfileController = async (req, res) => {
   try {
     const user = await userService.getProfileService(req.user.id);
-    return res.status(200).json({ success: true, user });
+    return res.status(STATUS.OK).json({ success: true, user });
   } catch (err) {
-    return res.status(400).json({ success: false, message: err.message });
+    return res.status(STATUS.BAD_REQUEST).json({ success: false, message: err.message });
   }
 };
 
@@ -18,32 +20,26 @@ export const changePasswordController = async (req, res) => {
       password,
       confirmPassword,
     });
-    return res.status(200).json({ success: true, message: result.message });
+    return res.status(STATUS.OK).json({ success: true, message: result.message });
   } catch (err) {
-    return res.status(400).json({ success: false, message: err.message });
+    return res.status(STATUS.BAD_REQUEST).json({ success: false, message: err.message });
   }
 };
 
 // UPDATE PROFILE CONTROLLER
-export const updateProfile = async (req, res) => {
+export const updateProfile = async (req, res, next) => {
   try {
-    const userId = req.user.id;
-
-    const updatedUser = await userService.updateProfileService(
-      userId,
-      req.body,
-      req.file
-    );
-
-    res.status(200).json({
+    const files = req.uploadedFiles ?? [];
+ 
+    const updatedUser = await userService.updateProfileService(req.user.id, req.body, files);
+ 
+    return res.status(STATUS.OK).json({
       success: true,
-      message: "Profile updated successfully",
-      data: updatedUser,
+      message: "Profile updated successfully.",
+      data: { user: updatedUser },
     });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+  } catch (err) {
+    return res.status(STATUS.BAD_REQUEST).json({ success: false, message: err.message });
   }
 };
+ 

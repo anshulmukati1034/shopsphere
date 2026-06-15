@@ -4,118 +4,84 @@ import User from "../user/user.model.js";
 import redis from "../../config/redis.js";
 import { emailQueue } from "../../jobs/queues/email.queue.js";
 import { generateOTP } from "../../utils/generateOtp.js";
+import { AppError } from "../../utils/appError.js";
+import { AUTH_MESSAGES } from "../../utils/constants/messages.js";
+import { REDIS_KEYS } from "../../utils/constants/redisKeys.js";
+import { ROLES } from "../../utils/constants/roles.js";
+import { STATUS } from "../../utils/constants/status.js";
 import crypto from "crypto";
 
 const OTP_EXPIRE = 300;
 
-// SIGNUP
-
-export const signupService = async ({ name, email, password, role = "user" }) => {
-    const user = await User.findOne({
-        where: {
-            email,
-        },
-    });
+// SIGNUP 
+export const signupService = async ({
+    name,
+    email,
+    password,
+    role = ROLES.USER,
+}) => {
+    const user = await User.findOne({ where: { email } });
 
     if (user) {
-        throw new Error("User already exists");
+        throw new AppError(AUTH_MESSAGES.USER_EXISTS, STATUS.CONFLICT);
     }
 
     const otp = generateOTP();
-
     const hash = await hashPassword(password);
 
-    await redis.set(`otp:${email}`, otp, {
-        EX: OTP_EXPIRE,
-    });
+    await redis.set(REDIS_KEYS.OTP(email), otp, { EX: OTP_EXPIRE });
 
     await redis.set(
-        `signup:${email}`,
-
-        JSON.stringify({
-            name,
-            email,
-            password: hash,
-            role,
-        }),
-
-        {
-            EX: OTP_EXPIRE,
-        },
+        REDIS_KEYS.SIGNUP(email),
+        JSON.stringify({ name, email, password: hash, role }),
+        { EX: OTP_EXPIRE },
     );
 
-    await emailQueue.add("send-otp", {
-        email,
-        otp,
-    });
+    await emailQueue.add("send-otp", { email, otp });
 
-    return {
-        message: "OTP sent successfully",
-    };
+    return { message: AUTH_MESSAGES.OTP_SENT };
 };
 
+// LOGIN 
 export const loginService = async ({ email, password }) => {
-    const user = await User.findOne({
-        where: {
-            email,
-        },
-    });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
-        throw new Error("User not found");
+        throw new AppError(AUTH_MESSAGES.USER_NOT_FOUND, STATUS.NOT_FOUND);
     }
 
     if (!user.isVerified) {
-        throw new Error("Verify your account first");
+        throw new AppError(AUTH_MESSAGES.VERIFY_ACCOUNT, STATUS.UNAUTHORIZED);
     }
 
     if (!user.isActive) {
-        throw new Error("Account blocked");
+        throw new AppError(AUTH_MESSAGES.ACCOUNT_BLOCKED, STATUS.FORBIDDEN);
     }
 
     const match = await comparePasswords(password, user.password);
 
     if (!match) {
-        throw new Error("Invalid password");
+        throw new AppError(AUTH_MESSAGES.INVALID_PASSWORD, STATUS.UNAUTHORIZED);
     }
 
     const { accessToken, refreshToken } = generateTokens(user);
 
-    return {
-        accessToken,
-        refreshToken,
-        user,
-    };
+    return { accessToken, refreshToken, user };
 };
 
+//FORGOT PASSWORD 
 export const forgotPasswordService = async (email) => {
-    // Check User
-
-    const user = await User.findOne({
-        where: {
-            email,
-        },
-    });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
-        throw new Error("User not found");
+        throw new AppError(AUTH_MESSAGES.USER_NOT_FOUND, STATUS.NOT_FOUND);
     }
-
-    // Generate Random Token
 
     const token = crypto.randomBytes(32).toString("hex");
 
-    // Save in Redis
-
-    await redis.set(`reset:${token}`, email, {
-        EX: 900,
-    });
-
-    // Create Reset Link
+    await redis.set(REDIS_KEYS.RESET(token), email, { EX: 900 });
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-
-    // Add Email Job
 
     await emailQueue.add("forgot-password", {
         email,
@@ -123,135 +89,97 @@ export const forgotPasswordService = async (email) => {
         resetLink,
     });
 
-    return {
-        message: "Password reset link sent",
-    };
+    return { message: AUTH_MESSAGES.PASSWORD_RESET_LINK };
 };
+
+// RESET PASSWORD 
 
 export const resetPasswordService = async ({
     token,
     password,
     confirmPassword,
 }) => {
-    // Validate Password & Confirm Password Match (confirmPassword is validation-only, not stored in DB)
-
     if (password !== confirmPassword) {
-        throw new Error("Passwords do not match");
+        throw new AppError(AUTH_MESSAGES.PASSWORD_MISMATCH, STATUS.BAD_REQUEST);
     }
 
-    // Check Token
-
-    const email = await redis.get(`reset:${token}`);
+    const email = await redis.get(REDIS_KEYS.RESET(token));
 
     if (!email) {
-        throw new Error("Reset link expired or invalid");
+        throw new AppError(AUTH_MESSAGES.INVALID_RESET_TOKEN, STATUS.BAD_REQUEST);
     }
 
-    // Find User
-
-    const user = await User.findOne({
-        where: {
-            email,
-        },
-    });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
-        throw new Error("User not found");
+        throw new AppError(AUTH_MESSAGES.USER_NOT_FOUND, STATUS.NOT_FOUND);
     }
-
-    // Hash Password
-
-    const hashedPassword = await hashPassword(password);
 
     const isSame = await comparePasswords(password, user.password);
 
     if (isSame) {
-        throw new Error("New password must be different from the old password");
+        throw new AppError(AUTH_MESSAGES.SAME_PASSWORD, STATUS.BAD_REQUEST);
     }
 
-    // Update Password
-
-    user.password = hashedPassword;
-
+    user.password = await hashPassword(password);
     await user.save();
 
-    // Delete Reset Token
+    await redis.del(REDIS_KEYS.RESET(token));
 
-    await redis.del(`reset:${token}`);
-
-    return {
-        message: "Password reset successful",
-    };
+    return { message: AUTH_MESSAGES.PASSWORD_RESET_SUCCESS };
 };
 
-// VERIFY OTP
+//VERIFY OTP
+
 export const verifyOtpService = async ({ email, otp }) => {
-    const redisOtp = await redis.get(`otp:${email}`);
+    const redisOtp = await redis.get(REDIS_KEYS.OTP(email));
 
     if (!redisOtp) {
-        throw new Error("OTP expired");
+        throw new AppError(AUTH_MESSAGES.OTP_EXPIRED, STATUS.BAD_REQUEST);
     }
 
     if (redisOtp != otp) {
-        throw new Error("Invalid OTP");
+        throw new AppError(AUTH_MESSAGES.INVALID_OTP, STATUS.BAD_REQUEST);
     }
 
-    const signupData = await redis.get(`signup:${email}`);
+    const signupData = await redis.get(REDIS_KEYS.SIGNUP(email));
 
     if (!signupData) {
-        throw new Error("Signup expired");
+        throw new AppError(AUTH_MESSAGES.SIGNUP_EXPIRED, STATUS.BAD_REQUEST);
     }
 
     const data = JSON.parse(signupData);
 
     const user = await User.create({
         name: data.name,
-
         email: data.email,
-
         password: data.password,
-
-        role: data.role || "user",
-
+        role: data.role || ROLES.USER,
         isVerified: true,
     });
 
-    await redis.del(`otp:${email}`);
+    await redis.del(REDIS_KEYS.OTP(email));
+    await redis.del(REDIS_KEYS.SIGNUP(email));
 
-    await redis.del(`signup:${email}`);
+    await emailQueue.add("welcome", { email: user.email, name: user.name });
 
-    await emailQueue.add("welcome", {
-        email: user.email,
-
-        name: user.name,
-    });
-
-    return {
-        message: "Account created",
-
-        user,
-    };
+    return { message: AUTH_MESSAGES.ACCOUNT_CREATED, user };
 };
 
+// RESEND OTP 
+
 export const resendOtpService = async (email) => {
-    const signupData = await redis.get(`signup:${email}`);
+    const signupData = await redis.get(REDIS_KEYS.SIGNUP(email));
 
     if (!signupData) {
-        throw new Error("Signup expired");
+        throw new AppError(AUTH_MESSAGES.SIGNUP_EXPIRED, STATUS.BAD_REQUEST);
     }
 
     const otp = generateOTP();
 
-    await redis.set(`otp:${email}`, otp, {
-        EX: 300,
-    });
+    await redis.set(REDIS_KEYS.OTP(email), otp, { EX: OTP_EXPIRE });
 
-    await emailQueue.add("send-otp", {
-        email,
-        otp,
-    });
+    await emailQueue.add("send-otp", { email, otp });
 
-    return {
-        message: "OTP resent",
-    };
+    return { message: AUTH_MESSAGES.OTP_RESENT };
 };

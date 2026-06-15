@@ -1,7 +1,10 @@
 import * as authService from "./auth.service.js";
+import { STATUS } from "../../utils/constants/status.js";
+import { ROLES } from "../../utils/constants/roles.js";
 
-// Signup
-export const signupController = async (req, res) => {
+//SIGNUP 
+
+export const signupController = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
 
@@ -9,64 +12,54 @@ export const signupController = async (req, res) => {
       name,
       email,
       password,
-      role: role || "user",
+      role: role || ROLES.USER,
     });
 
-    return res.status(200).json({
+    return res.status(STATUS.OK).json({
       success: true,
       message: result.message,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-export const loginController = async (req, res) => {
+// LOGIN 
+export const loginController = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    const result = await authService.loginService({
-      email,
-      password,
-    });
+    const result = await authService.loginService({ email, password });
 
-    return res.status(200).json({
+    return res.status(STATUS.OK).json({
       success: true,
       user: result.user,
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
     });
-  } catch (err) {
-    return res.status(400).json({
-      success: false,
-      message: err.message,
-    });
+  } catch (error) {
+    next(error);
   }
 };
 
-export const forgotPasswordController = async (req, res) => {
+//  FORGOT PASSWORD 
+export const forgotPasswordController = async (req, res, next) => {
   try {
     const { email } = req.body;
 
     const result = await authService.forgotPasswordService(email);
 
-    return res.status(200).json({
+    return res.status(STATUS.OK).json({
       success: true,
       message: result.message,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-// RESET PASSWORD
-export const resetPasswordController = async (req, res) => {
+// RESET PASSWORD 
+export const resetPasswordController = async (req, res, next) => {
   try {
     const { token, password, confirmPassword } = req.body;
 
@@ -76,57 +69,44 @@ export const resetPasswordController = async (req, res) => {
       confirmPassword,
     });
 
-    return res.status(200).json({
+    return res.status(STATUS.OK).json({
       success: true,
       message: result.message,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-// Verify OTP
-export const verifyOtpController = async (req, res) => {
+// VERIFY OTP 
+export const verifyOtpController = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
 
-    const result = await authService.verifyOtpService({
-      email,
-      otp,
-    });
+    const result = await authService.verifyOtpService({ email, otp });
 
-    return res.status(201).json({
+    return res.status(STATUS.CREATED).json({
       success: true,
       message: result.message,
       user: result.user,
     });
   } catch (error) {
-    return res.status(400).json({
-      success: false,
-      message: error.message,
-    });
+    next(error);
   }
 };
 
-export const resendOtpController = async (req, res) => {
+// RESEND OTP 
+export const resendOtpController = async (req, res, next) => {
   try {
     const { email } = req.body;
 
     const result = await authService.resendOtpService(email);
 
-    res.json({
+    return res.status(STATUS.OK).json({
       success: true,
       message: result.message,
     });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: err.message,
-    });
+  } catch (error) {
+    next(error);
   }
 };
-
-
