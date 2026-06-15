@@ -1,6 +1,6 @@
 import User from "../user/user.model.js";
 import { hashPassword, comparePasswords } from "../../utils/bcrypt.js";
-import { uploadManyToCloudinary } from "../utils/cloudinaryUpload.js";
+import { uploadManyToCloudinary } from "../../utils/cloudinaryUpload.js";
 import { AppError } from "../../utils/appError.js";
 import { AUTH_MESSAGES } from "../../utils/constants/messages.js";
 import { ROLES } from "../../utils/constants/roles.js";
