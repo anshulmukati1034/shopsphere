@@ -1,17 +1,20 @@
 import * as userService from "./user.service.js";
 import { STATUS } from "../../utils/constants/status.js";
 import { ROLES } from "../../utils/constants/roles.js";
+import { successResponse } from "../../utils/response.js";
 
-export const getUserProfileController = async (req, res) => {
+export const getUserProfileController = async (req, res, next) => {
   try {
     const user = await userService.getProfileService(req.user.id);
-    return res.status(STATUS.OK).json({ success: true, user });
+    return successResponse(res, "Profile fetched successfully.", STATUS.OK, {
+      user,
+    });
   } catch (err) {
-    return res.status(STATUS.BAD_REQUEST).json({ success: false, message: err.message });
+    next(err);
   }
 };
 
-export const changePasswordController = async (req, res) => {
+export const changePasswordController = async (req, res, next) => {
   try {
     const { oldPassword, password, confirmPassword } = req.body;
     const result = await userService.changePasswordService({
@@ -20,9 +23,9 @@ export const changePasswordController = async (req, res) => {
       password,
       confirmPassword,
     });
-    return res.status(STATUS.OK).json({ success: true, message: result.message });
+    return successResponse(res, result.message, STATUS.OK);
   } catch (err) {
-    return res.status(STATUS.BAD_REQUEST).json({ success: false, message: err.message });
+    next(err);
   }
 };
 
@@ -30,16 +33,17 @@ export const changePasswordController = async (req, res) => {
 export const updateProfile = async (req, res, next) => {
   try {
     const files = req.uploadedFiles ?? [];
- 
-    const updatedUser = await userService.updateProfileService(req.user.id, req.body, files);
- 
-    return res.status(STATUS.OK).json({
-      success: true,
-      message: "Profile updated successfully.",
-      data: { user: updatedUser },
+
+    const updatedUser = await userService.updateProfileService(
+      req.user.id,
+      req.body,
+      files,
+    );
+
+    return successResponse(res, "Profile updated successfully.", STATUS.OK, {
+      user: updatedUser,
     });
   } catch (err) {
-    return res.status(STATUS.BAD_REQUEST).json({ success: false, message: err.message });
+    next(err);
   }
 };
- 

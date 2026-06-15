@@ -1,9 +1,11 @@
 import * as authService from "./auth.service.js";
 import { STATUS } from "../../utils/constants/status.js";
 import { ROLES } from "../../utils/constants/roles.js";
+import { successResponse } from "../../utils/response.js";
+
+
 
 //SIGNUP 
-
 export const signupController = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
@@ -15,9 +17,8 @@ export const signupController = async (req, res, next) => {
       role: role || ROLES.USER,
     });
 
-    return res.status(STATUS.OK).json({
-      success: true,
-      message: result.message,
+    return successResponse(res, result.message, STATUS.CREATED, {
+      user: result.user,
     });
   } catch (error) {
     next(error);
@@ -31,8 +32,7 @@ export const loginController = async (req, res, next) => {
 
     const result = await authService.loginService({ email, password });
 
-    return res.status(STATUS.OK).json({
-      success: true,
+    return successResponse(res, "Login successful.", STATUS.OK, {
       user: result.user,
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
@@ -49,10 +49,7 @@ export const forgotPasswordController = async (req, res, next) => {
 
     const result = await authService.forgotPasswordService(email);
 
-    return res.status(STATUS.OK).json({
-      success: true,
-      message: result.message,
-    });
+    return successResponse(res, result.message, STATUS.OK);
   } catch (error) {
     next(error);
   }
@@ -69,10 +66,7 @@ export const resetPasswordController = async (req, res, next) => {
       confirmPassword,
     });
 
-    return res.status(STATUS.OK).json({
-      success: true,
-      message: result.message,
-    });
+    return successResponse(res, result.message, STATUS.OK);
   } catch (error) {
     next(error);
   }
@@ -85,9 +79,7 @@ export const verifyOtpController = async (req, res, next) => {
 
     const result = await authService.verifyOtpService({ email, otp });
 
-    return res.status(STATUS.CREATED).json({
-      success: true,
-      message: result.message,
+    return successResponse(res, result.message, STATUS.CREATED, {
       user: result.user,
     });
   } catch (error) {
@@ -102,10 +94,7 @@ export const resendOtpController = async (req, res, next) => {
 
     const result = await authService.resendOtpService(email);
 
-    return res.status(STATUS.OK).json({
-      success: true,
-      message: result.message,
-    });
+    return successResponse(res, result.message, STATUS.OK);
   } catch (error) {
     next(error);
   }

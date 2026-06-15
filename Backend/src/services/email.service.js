@@ -13,13 +13,13 @@ const transporter = nodemailer.createTransport({
 });
 
 // Optional: verify SMTP connection on startup
-transporter.verify((error, success) => {
-  if (error) {
-    console.log("❌ SMTP Error:", error);
-  } else {
-    console.log("✅ Gmail SMTP Ready");
-  }
-});
+// transporter.verify((error, success) => {
+//   if (error) {
+//     console.log("❌ SMTP Error:", error);
+//   } else {
+//     console.log("✅ Gmail SMTP Ready");
+//   }
+// });
 
 // -------------------------
 // 📩 OTP Email
