@@ -33,3 +33,54 @@ export const AUTH_MESSAGES = {
   PROFILE_FETCHED: "Profile fetched successfully.",
   PROFILE_UPDATED: "Profile updated successfully.",
 };
+
+export const CATEGORY_MESSAGES = {
+  CATEGORIES_FETCHED: "Categories fetched successfully.",
+  CATEGORY_FETCHED: "Category fetched successfully.",
+  CHILD_CATEGORIES_FETCHED: "Child categories fetched successfully.",
+  CATEGORY_BY_SLUG_FETCHED: "Category fetched successfully by slug.",
+  CATEGORY_NOT_FOUND: "Category not found.",
+
+  CATEGORY_FETCH_FAILED: "Failed to fetch category.",
+};
+
+export const PRODUCT_MESSAGES = {
+  PRODUCTS_FETCHED: "Products fetched successfully",
+  FEATURED_PRODUCTS_FETCHED: "Featured products fetched successfully",
+  PRODUCT_FETCHED: "Product fetched successfully",
+  PRODUCT_NOT_FOUND: "Product not found",
+  PRODUCT_FETCH_FAILED: "Failed to fetch product(s)",
+};
+
+export const BRAND_MESSAGES = {
+  BRANDS_FETCHED: "Brands fetched successfully.",
+  FEATURED_BRANDS_FETCHED: "Featured brands fetched successfully.",
+  BRAND_FETCHED: "Brand fetched successfully.",
+
+  BRAND_NOT_FOUND: "Brand not found.",
+
+  BRAND_FETCH_FAILED: "Failed to fetch brand.",
+};
+
+export const CART_MESSAGES = {
+  CART_CREATED: "Cart created successfully",
+
+  CART_FETCHED: "Cart fetched successfully",
+  CART_NOT_FOUND: "Cart not found",
+
+  CART_ITEM_ADDED: "Item added to cart",
+  CART_ITEM_REMOVED: "Item removed from cart",
+  CART_ITEM_NOT_FOUND: "Cart item not found",
+
+  CART_UPDATED: "Cart updated successfully",
+  CART_CLEARED: "Cart cleared successfully",
+
+  PRODUCT_NOT_FOUND: "Product not found",
+  VARIANT_NOT_FOUND: "Product variant not found",
+
+  CART_ADD_FAILED: "Failed to add item to cart",
+  CART_FETCH_FAILED: "Failed to fetch cart",
+  CART_UPDATE_FAILED: "Failed to update cart",
+  CART_REMOVE_FAILED: "Failed to remove cart item",
+  CART_CLEAR_FAILED: "Failed to clear cart",
+};

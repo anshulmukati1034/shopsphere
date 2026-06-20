@@ -2,7 +2,7 @@ import express from "express";
 
 import * as productRoute from "./product.controller.js";
 
-import { validate } from "../../middlewares/validate.js";
+import { validate } from "../../middleware/validate.middleware.js";
 import { productValidation } from "./product.validation.js";
 
 const router = express.Router();

@@ -1,5 +1,4 @@
-// models/associations.js
-
+import User from "../modules/user/user.model.js";
 import Category from "../modules/category/category.model.js";
 import Brand from "../modules/brand/brand.model.js";
 import Product from "../modules/product/product.model.js";
@@ -7,6 +6,8 @@ import ProductImage from "../modules/product/productImage.model.js";
 import ProductVariant from "../modules/product/productVariant.model.js";
 import ProductAttribute from "../modules/product/productAttribute.model.js";
 import Inventory from "../modules/product/inventory.model.js";
+import Cart from "../modules/cart/cart.model.js";
+import CartItem from "../modules/cart/cartItem.model.js";
 
 
 // ===========================
@@ -143,6 +144,58 @@ Inventory.belongsTo(ProductVariant, {
   as: "variant",
 });
 
+// ===========================
+// Cart
+// ===========================
+
+// User to Cart
+User.hasOne(Cart, {
+  foreignKey: "userId",
+  as: "cart",
+});
+
+Cart.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+
+// Cart to CartItem
+Cart.hasMany(CartItem, {
+  foreignKey: "cartId",
+  as: "items",
+});
+
+CartItem.belongsTo(Cart, {
+  foreignKey: "cartId",
+  as: "cart",
+});
+
+
+// Product to CartItem
+Product.hasMany(CartItem, {
+  foreignKey: "productId",
+  as: "cartItems",
+});
+
+CartItem.belongsTo(Product, {
+  foreignKey: "productId",
+  as: "product",
+});
+
+
+// Variant to CartItem
+ProductVariant.hasMany(CartItem, {
+  foreignKey: "variantId",
+  as: "cartItems",
+});
+
+CartItem.belongsTo(ProductVariant, {
+  foreignKey: "variantId",
+  as: "variant",
+});
+
+
 
 // ===========================
 // Export Models
@@ -156,4 +209,6 @@ export {
   ProductImage,
   ProductAttribute,
   Inventory,
+  Cart,
+  CartItem
 };

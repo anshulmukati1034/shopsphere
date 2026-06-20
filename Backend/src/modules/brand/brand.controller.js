@@ -1,8 +1,7 @@
-import {
-  getBrandsService,
-  getFeaturedBrandsService,
-  getBrandBySlugService,
-} from "./brand.service.js";
+import * as brandService from "./brand.service.js";
+import { successResponse, errorResponse } from "../../utils/response.js";
+import { STATUS } from "../../utils/constants/status.js";
+import { BRAND_MESSAGES } from "../../utils/constants/messages.js";
 
 export const getBrands = async (
   req,
@@ -10,12 +9,9 @@ export const getBrands = async (
   next
 ) => {
   try {
-    const data = await getBrandsService();
+    const data = await brandService.getBrandsService();
 
-    res.status(200).json({
-      success: true,
-      data,
-    });
+    successResponse(res, STATUS.OK, true, data, BRAND_MESSAGES.BRANDS_FETCHED);
   } catch (error) {
     next(error);
   }
@@ -28,12 +24,9 @@ export const getFeaturedBrands = async (
 ) => {
   try {
     const data =
-      await getFeaturedBrandsService();
+      await brandService.getFeaturedBrandsService();
 
-    res.status(200).json({
-      success: true,
-      data,
-    });
+    successResponse(res, STATUS.OK, true, data, BRAND_MESSAGES.FEATURED_BRANDS_FETCHED );
   } catch (error) {
     next(error);
   }
@@ -46,21 +39,15 @@ export const getBrandBySlug = async (
 ) => {
   try {
     const brand =
-      await getBrandBySlugService(
+      await brandService.getBrandBySlugService(
         req.params.slug
       );
 
     if (!brand) {
-      return res.status(404).json({
-        success: false,
-        message: "Brand not found",
-      });
+      return errorResponse(res, STATUS.NOT_FOUND, false, BRAND_MESSAGES.BRAND_NOT_FOUND);
     }
 
-    res.status(200).json({
-      success: true,
-      data: brand,
-    });
+    successResponse(res, STATUS.OK, true, brand, BRAND_MESSAGES.BRAND_FETCHED);  
   } catch (error) {
     next(error);
   }
