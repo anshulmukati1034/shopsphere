@@ -84,3 +84,32 @@ export const CART_MESSAGES = {
   CART_REMOVE_FAILED: "Failed to remove cart item",
   CART_CLEAR_FAILED: "Failed to clear cart",
 };
+
+export const WISHLIST_MESSAGES = {
+  ADDED: "Product added to wishlist.",
+  FETCHED: "Wishlist fetched successfully.",
+  REMOVED: "Product removed from wishlist.",
+
+  PRODUCT_NOT_FOUND: "Product not found.",
+  ALREADY_IN_WISHLIST: "Product already in wishlist.",
+  NOT_FOUND: "Wishlist item not found.",
+
+  ADD_FAILED: "Failed to add product to wishlist.",
+  FETCH_FAILED: "Failed to fetch wishlist.",
+  REMOVE_FAILED: "Failed to remove wishlist item.",
+};
+
+export const ADDRESS_MESSAGES = {
+  CREATED: "Address added successfully.",
+  FETCHED: "Address fetched successfully.",
+  UPDATED: "Address updated successfully.",
+  DELETED: "Address deleted successfully.",
+  DEFAULT_UPDATED: "Default address updated successfully.",
+
+  NOT_FOUND: "Address not found.",
+
+  CREATE_FAILED: "Failed to create address.",
+  FETCH_FAILED: "Failed to fetch address.",
+  UPDATE_FAILED: "Failed to update address.",
+  DELETE_FAILED: "Failed to delete address.",
+};
