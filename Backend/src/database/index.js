@@ -8,6 +8,8 @@ import ProductAttribute from "../modules/product/productAttribute.model.js";
 import Inventory from "../modules/product/inventory.model.js";
 import Cart from "../modules/cart/cart.model.js";
 import CartItem from "../modules/cart/cartItem.model.js";
+import Wishlist from "../modules/wishlist/wishlist.model.js";
+import Address from "../modules/address/address.model.js";
 
 
 // ===========================
@@ -196,6 +198,38 @@ CartItem.belongsTo(ProductVariant, {
 });
 
 
+//wislist
+User.hasMany(Wishlist, {
+  foreignKey: "userId",
+  as: "wishlist",
+});
+
+Wishlist.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+Product.hasMany(Wishlist, {
+  foreignKey: "productId",
+  as: "wishlists",
+});
+
+Wishlist.belongsTo(Product, {
+  foreignKey: "productId",
+  as: "product",
+});
+
+// User to address
+User.hasMany(Address, {
+  foreignKey: "userId",
+  as: "addresses",
+});
+
+Address.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
 
 // ===========================
 // Export Models
@@ -210,5 +244,7 @@ export {
   ProductAttribute,
   Inventory,
   Cart,
-  CartItem
+  CartItem,
+  Wishlist,
+  Address
 };
