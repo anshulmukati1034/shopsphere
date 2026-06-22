@@ -22,15 +22,27 @@ const Inventory = sequelize.define(
       field: "variant_id",
     },
 
+    // Total Available Stock
     quantity: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
+      allowNull: false,
     },
 
+    // Reserved for pending orders
     reservedQuantity: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
+      allowNull: false,
       field: "reserved_quantity",
+    },
+
+    // Total sold items
+    soldQuantity: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
+      field: "sold_quantity",
     },
 
     lowStockThreshold: {
@@ -59,9 +71,12 @@ const Inventory = sequelize.define(
       {
         fields: ["product_id"],
       },
-
       {
         fields: ["variant_id"],
+      },
+      {
+        unique: true,
+        fields: ["product_id", "variant_id"],
       },
     ],
   }

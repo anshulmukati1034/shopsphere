@@ -10,7 +10,9 @@ import Cart from "../modules/cart/cart.model.js";
 import CartItem from "../modules/cart/cartItem.model.js";
 import Wishlist from "../modules/wishlist/wishlist.model.js";
 import Address from "../modules/address/address.model.js";
-
+import Order from "../modules/order/order.model.js";
+import OrderItem from "../modules/order/orderItem.model.js";
+import Payment from "../modules/payment/payment.model.js";
 
 // ===========================
 // Category Self Relation
@@ -26,7 +28,6 @@ Category.belongsTo(Category, {
   as: "parent",
 });
 
-
 // ===========================
 // Category -> Product
 // ===========================
@@ -40,7 +41,6 @@ Product.belongsTo(Category, {
   foreignKey: "categoryId",
   as: "category",
 });
-
 
 // ===========================
 // Brand -> Product
@@ -56,7 +56,6 @@ Product.belongsTo(Brand, {
   as: "brand",
 });
 
-
 // ===========================
 // Product -> Variants
 // ===========================
@@ -70,7 +69,6 @@ ProductVariant.belongsTo(Product, {
   foreignKey: "productId",
   as: "product",
 });
-
 
 // ===========================
 // Product -> Images
@@ -86,7 +84,6 @@ ProductImage.belongsTo(Product, {
   as: "product",
 });
 
-
 // ===========================
 // Variant -> Images
 // ===========================
@@ -100,7 +97,6 @@ ProductImage.belongsTo(ProductVariant, {
   foreignKey: "variantId",
   as: "variant",
 });
-
 
 // ===========================
 // Product -> Attributes
@@ -116,7 +112,6 @@ ProductAttribute.belongsTo(Product, {
   as: "product",
 });
 
-
 // ===========================
 // Product -> Inventory
 // ===========================
@@ -130,7 +125,6 @@ Inventory.belongsTo(Product, {
   foreignKey: "productId",
   as: "product",
 });
-
 
 // ===========================
 // Variant -> Inventory
@@ -161,7 +155,6 @@ Cart.belongsTo(User, {
   as: "user",
 });
 
-
 // Cart to CartItem
 Cart.hasMany(CartItem, {
   foreignKey: "cartId",
@@ -172,7 +165,6 @@ CartItem.belongsTo(Cart, {
   foreignKey: "cartId",
   as: "cart",
 });
-
 
 // Product to CartItem
 Product.hasMany(CartItem, {
@@ -185,7 +177,6 @@ CartItem.belongsTo(Product, {
   as: "product",
 });
 
-
 // Variant to CartItem
 ProductVariant.hasMany(CartItem, {
   foreignKey: "variantId",
@@ -196,7 +187,6 @@ CartItem.belongsTo(ProductVariant, {
   foreignKey: "variantId",
   as: "variant",
 });
-
 
 //wislist
 User.hasMany(Wishlist, {
@@ -230,6 +220,72 @@ Address.belongsTo(User, {
   as: "user",
 });
 
+//Order
+User.hasMany(Order, {
+  foreignKey: "userId",
+  as: "orders",
+});
+
+Order.belongsTo(User, {
+  foreignKey: "userId",
+  as: "user",
+});
+
+Address.hasMany(Order, {
+  foreignKey: "addressId",
+  as: "orders",
+});
+
+Order.belongsTo(Address, {
+  foreignKey: "addressId",
+  as: "address",
+});
+
+Order.hasMany(OrderItem, {
+  foreignKey: "orderId",
+  as: "items",
+});
+
+OrderItem.belongsTo(Order, {
+  foreignKey: "orderId",
+  as: "order",
+});
+
+Product.hasMany(OrderItem, {
+  foreignKey: "productId",
+  as: "orderItems",
+});
+
+OrderItem.belongsTo(Product, {
+  foreignKey: "productId",
+  as: "product",
+});
+
+ProductVariant.hasMany(OrderItem, {
+  foreignKey: "variantId",
+  as: "orderItems",
+});
+
+OrderItem.belongsTo(ProductVariant, {
+  foreignKey: "variantId",
+  as: "variant",
+});
+
+// ===========================
+// Order -> Payment
+// ===========================
+// One order can have multiple payment attempts over time (retries after a
+// failed attempt, for example) — hence hasMany rather than hasOne.
+
+Order.hasMany(Payment, {
+  foreignKey: "orderId",
+  as: "payments",
+});
+
+Payment.belongsTo(Order, {
+  foreignKey: "orderId",
+  as: "order",
+});
 
 // ===========================
 // Export Models
@@ -246,5 +302,8 @@ export {
   Cart,
   CartItem,
   Wishlist,
-  Address
+  Address,
+  Order,
+  OrderItem,
+  Payment,
 };
