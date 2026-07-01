@@ -1,9 +1,13 @@
 import express from "express";
-import { initiateCheckout } from "./order.controller.js";
-import authMiddleware from "../../middleware/auth.middleware.js"; 
+import * as orderController from "./order.controller.js";
+import { authMiddleware } from "../../middlewares/auth.middleware.js"; // adjust to your actual middleware path
 
 const router = express.Router();
 
-router.post("/checkout", authMiddleware,  initiateCheckout);
+router.use(authMiddleware);
+
+router.post("/", orderController.createOrder);
+router.get("/", orderController.getUserOrders);
+router.get("/:id", orderController.getOrder);
 
 export default router;

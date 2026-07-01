@@ -22,7 +22,11 @@ const Payment = sequelize.define(
       onDelete: "RESTRICT",
     },
 
-    // Razorpay order_id (order_xxx) — created BEFORE checkout opens
+    gateway: {
+      type: DataTypes.ENUM("RAZORPAY"),
+      defaultValue: "RAZORPAY",
+    },
+
     razorpayOrderId: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -30,10 +34,10 @@ const Payment = sequelize.define(
       field: "razorpay_order_id",
     },
 
-    // Razorpay payment_id (pay_xxx) — only present after a payment attempt
     razorpayPaymentId: {
       type: DataTypes.STRING,
       allowNull: true,
+      unique: true,
       field: "razorpay_payment_id",
     },
 
@@ -50,30 +54,38 @@ const Payment = sequelize.define(
 
     currency: {
       type: DataTypes.STRING(10),
-      allowNull: false,
       defaultValue: "INR",
     },
 
     status: {
       type: DataTypes.ENUM(
-        "CREATED",    // razorpay order created, payment not attempted yet
-        "AUTHORIZED", // authorized but not captured (manual capture flow)
-        "PAID",       // payment captured + verified
-        "FAILED",     // payment failed
-        "REFUNDED",   // fully refunded
+        "CREATED",
+        "AUTHORIZED",
+        "PAID",
+        "FAILED",
+        "REFUNDED"
       ),
       defaultValue: "CREATED",
     },
 
     method: {
-      type: DataTypes.STRING(50), // card, upi, netbanking, wallet, etc.
+      type: DataTypes.STRING(50),
       allowNull: true,
     },
 
-    rawResponse: {
-      type: DataTypes.JSONB,
+    capturedAt: {
+      type: DataTypes.DATE,
       allowNull: true,
-      field: "raw_response",
+    },
+
+    refundedAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    refundId: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
 
     failureReason: {
@@ -81,20 +93,34 @@ const Payment = sequelize.define(
       allowNull: true,
       field: "failure_reason",
     },
-  },
 
+    rawResponse: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      field: "raw_response",
+    },
+  },
   {
     tableName: "payments",
-
     timestamps: true,
 
     indexes: [
-      { unique: true, fields: ["razorpay_order_id"] },
-      { fields: ["razorpay_payment_id"] },
-      { fields: ["order_id"] },
-      { fields: ["status"] },
+      {
+        fields: ["order_id"],
+      },
+      {
+        fields: ["status"],
+      },
+      {
+        unique: true,
+        fields: ["razorpay_order_id"],
+      },
+      {
+        unique: true,
+        fields: ["razorpay_payment_id"],
+      },
     ],
-  },
+  }
 );
 
 export default Payment;

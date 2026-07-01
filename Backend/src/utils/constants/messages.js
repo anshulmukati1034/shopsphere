@@ -113,3 +113,29 @@ export const ADDRESS_MESSAGES = {
   UPDATE_FAILED: "Failed to update address.",
   DELETE_FAILED: "Failed to delete address.",
 };
+
+export const ORDER_MESSAGES = {
+  ORDER_CREATED: "Order created successfully",
+  ORDER_FETCHED: "Order fetched successfully",
+  ORDER_LIST_FETCHED: "Orders fetched successfully",
+  ORDER_CANCELLED: "Order cancelled successfully",
+
+  CART_EMPTY: "Your cart is empty",
+  ADDRESS_NOT_FOUND: "Address not found",
+  ORDER_NOT_FOUND: "Order not found",
+  ORDER_ALREADY_PAID: "Order is already paid",
+  INSUFFICIENT_STOCK: "One or more items are out of stock",
+};
+
+export const PAYMENT_MESSAGES = {
+  PAYMENT_INITIATED: "Payment initiated successfully",
+  PAYMENT_VERIFIED: "Payment verified successfully",
+  PAYMENT_FAILED: "Payment verification failed",
+
+  ORDER_NOT_FOUND: "Order not found",
+  PAYMENT_NOT_FOUND: "Payment record not found",
+  ORDER_ALREADY_PAID: "Order is already paid",
+  INVALID_SIGNATURE: "Invalid payment signature",
+  WEBHOOK_INVALID_SIGNATURE: "Invalid webhook signature",
+  WEBHOOK_PROCESSED: "Webhook processed",
+};

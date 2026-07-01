@@ -19,11 +19,23 @@ const Order = sequelize.define(
     userId: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "users",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "RESTRICT",
     },
 
     addressId: {
       type: DataTypes.UUID,
       allowNull: false,
+      references: {
+        model: "addresses",
+        key: "id",
+      },
+      onUpdate: "CASCADE",
+      onDelete: "RESTRICT",
     },
 
     subtotal: {
@@ -58,7 +70,13 @@ const Order = sequelize.define(
     },
 
     paymentStatus: {
-      type: DataTypes.ENUM("PENDING", "PAID", "FAILED", "REFUNDED"),
+      type: DataTypes.ENUM(
+        "PENDING",
+        "PROCESSING",
+        "PAID",
+        "FAILED",
+        "REFUNDED"
+      ),
       defaultValue: "PENDING",
     },
 
@@ -70,6 +88,7 @@ const Order = sequelize.define(
         "SHIPPED",
         "DELIVERED",
         "CANCELLED",
+        "RETURNED"
       ),
       defaultValue: "PENDING",
     },
@@ -77,13 +96,26 @@ const Order = sequelize.define(
     notes: {
       type: DataTypes.TEXT,
     },
-  },
 
+    placedAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+
+    deliveredAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+
+    cancelledAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+  },
   {
     tableName: "orders",
-
     timestamps: true,
-  },
+  }
 );
 
 export default Order;

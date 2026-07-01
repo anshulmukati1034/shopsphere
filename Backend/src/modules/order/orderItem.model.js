@@ -44,6 +44,16 @@ const OrderItem = sequelize.define(
       onDelete: "RESTRICT",
     },
 
+    productName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+
+    sku: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -59,12 +69,10 @@ const OrderItem = sequelize.define(
       allowNull: false,
     },
   },
-
   {
     tableName: "order_items",
-
     timestamps: true,
-  },
+  }
 );
 
 export default OrderItem;
